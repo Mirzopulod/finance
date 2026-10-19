@@ -47,6 +47,9 @@ class Account:
             print("Списание должно быть больше нуля и меньше текущего баланса")
             return False
 
+    def __str__(self):
+        return f"счёт: {self.name}, владелец: {self.owner}, баланс: {self.balance}"
+
 
 class Transaction(abc.ABC):
     def __init__(self, amount, data, description = '') -> None:
@@ -79,6 +82,8 @@ class Income(Transaction):
     def execute(self):
         self.__account.deposit(self.amount)
 
+    def __str__(self):
+        return f"[{self.data}] поступление: {self.amount} на счёт {self.__account.owner} {self.description}"
 
 class Expense(Transaction):
     def __init__(self, amount, account, data, description = '') -> None:
@@ -87,6 +92,9 @@ class Expense(Transaction):
 
     def execute(self):
         self.__account.withdraw(self.amount)
+
+    def __str__(self):
+        return f"[{self.data}] списание: {self.amount} со счёта {self.__account.owner} {self.description}"
 
 
 class Transfer(Transaction):
@@ -99,6 +107,9 @@ class Transfer(Transaction):
         if self.__account1.withdraw(self.amount):
             self.__account2.deposit(self.amount)
 
+    def __str__(self):
+        return f"[{self.data}] перевод: {self.amount} с {self.__account1.owner} на {self.__account2.owner} {self.description}"
+
 
 class FinanceManager:
     def __init__(self) -> None:
@@ -109,12 +120,42 @@ class FinanceManager:
         self.__accounts.append(account)
 
     def operation(self, operation):
+        operation.execute()
         self.__history.append(operation)
+
+    def show_accounts(self):
+        for acc in self.__accounts:
+            print(acc)
+
+    def show_history(self):
+        for op in self.__history:
+            print(op)
 
 
 def main():
-    pass
+    manager = FinanceManager()
+    acc1 = Account("Дебетовый счет", "Макс", 1000)
+    acc2 = Account("Дебетовый счет", "Алексей", 0)
 
+    manager.account(acc1)
+    manager.account(acc2)
+
+    op = Income(500, acc1, "2023-10-01", "На еду")
+    manager.operation(op)
+
+    op = Expense(200, acc1, "2023-10-02")
+    manager.operation(op)
+
+    op = Transfer(300, acc1, acc2, "2023-10-03", "Спасибо за поездку")
+    manager.operation(op)
+
+    print(acc1.balance, acc2.balance)
+
+    op = Transfer(5000, acc1, acc2, "2023-10-03")
+    manager.operation(op)
+
+    manager.show_accounts()
+    manager.show_history()
 
 if __name__ == "__main__":
     main()
