@@ -56,11 +56,11 @@ class Transaction(abc.ABC):
     def is_valid_amount(amount):
         return amount > 0
 
-    def __init__(self, amount, data, description = '') -> None:
+    def __init__(self, amount, date, description = '') -> None:
         if not Transaction.is_valid_amount(amount):
             raise ValueError("Сумма должна быть больше нуля")
         self.__amount = amount
-        self.__data = data
+        self.__date = date
         self.__description = description
 
     @property
@@ -68,8 +68,8 @@ class Transaction(abc.ABC):
         return self.__amount
 
     @property
-    def data(self):
-        return self.__data
+    def date(self):
+        return self.__date
 
     @property
     def description(self):
@@ -101,8 +101,8 @@ class Transaction(abc.ABC):
 
 
 class Income(Transaction):
-    def __init__(self, amount, account, data, description = '') -> None:
-        super().__init__(amount, data, description)
+    def __init__(self, amount, account, date, description = '') -> None:
+        super().__init__(amount, date, description)
         self.__account = account
 
     def execute(self):
@@ -110,23 +110,23 @@ class Income(Transaction):
         return True
 
     def __str__(self):
-        return f"[{self.data}] поступление: {self.amount} на счёт {self.__account.owner} {self.description}"
+        return f"[{self.date}] поступление: {self.amount} на счёт {self.__account.owner} {self.description}"
 
 class Expense(Transaction):
-    def __init__(self, amount, account, data, description = '') -> None:
-        super().__init__(amount, data, description)
+    def __init__(self, amount, account, date, description = '') -> None:
+        super().__init__(amount, date, description)
         self.__account = account
 
     def execute(self):
         return self.__account.withdraw(self.amount)
 
     def __str__(self):
-        return f"[{self.data}] списание: {self.amount} со счёта {self.__account.owner} {self.description}"
+        return f"[{self.date}] списание: {self.amount} со счёта {self.__account.owner} {self.description}"
 
 
 class Transfer(Transaction):
-    def __init__(self, amount, account1, account2, data, description = '') -> None:
-        super().__init__(amount, data, description)
+    def __init__(self, amount, account1, account2, date, description = '') -> None:
+        super().__init__(amount, date, description)
         if account1 is account2:
             raise ValueError("Нельзя переводить самому себе")
         self.__account1 = account1
@@ -139,7 +139,7 @@ class Transfer(Transaction):
         return False
 
     def __str__(self):
-        return f"[{self.data}] перевод: {self.amount} с {self.__account1.owner} на {self.__account2.owner} {self.description}"
+        return f"[{self.date}] перевод: {self.amount} с {self.__account1.owner} на {self.__account2.owner} {self.description}"
 
 
 class FinanceManager:
